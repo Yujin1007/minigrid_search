@@ -1,0 +1,60 @@
+seed: 9
+
+run_notes: DAgger
+
+model_base_path: null  # Folder to load the model from
+model_checkpoint: null  # Model checkpoint zip file name (without .zip) to load
+teacher:
+#  path: toy_teacher/rl_train_logs/2024-11-21-151501_map=map_rl=ppo-epochs=10-eplen=100_s=9_nt=None/checkpoint  # Folder to load the model from
+  path: lava/rl_train_logs/temp_model/checkpoint
+  checkpoint: final_model  # Model checkpoint zip file name (without .zip) to load
+
+compute:
+  n_gpu_workers: 1
+  n_cpu_workers: 8  # One gym env per cpu
+
+logging:
+  log_freq: 300  # How many times to log during training
+  video_save_freq: 20000 # Frequency to save the video
+  model_save_freq: 100000  # Frequency to save the model
+
+  wandb_project: lava_dagger
+  wandb_mode: online
+  wandb_tags: []
+
+  run_name: null
+  run_path: null
+
+env:
+  example_name: lava_switch
+#  example_name: student_failed_map
+#  example_name: map_realizability3
+  episode_length: 100
+  include_history: false
+  curriculum: 2
+
+bc_algo:
+  name: dagger
+  visibility: occluded
+  total_episode: 1000
+  total_timestep: 100*100
+  n_epochs: 10
+  batch_size: 128
+  gamma: 0.99
+  n: null
+#  bc_path: ./toy_student/dagger_bfs/train_logs/empty_map3_visibility=occluded_level=2_2024-12-09-102706_nt=DAgger_1000epi_10epo/BC
+  bc_path: null
+#  pre_trained_path: toy_teacher/rl_train_logs/2024-11-21-151501_map=map_rl=ppo-epochs=10-eplen=100_s=9_nt=None/checkpoint/final_mocgdel.zip
+
+#cost_fn: nav_shortest_path
+
+log_folder: ./lava/dagger_train_logs/
+log_path: ${log_folder}/${env.example_name}_visibility=${bc_algo.visibility}_level=${env.curriculum}_${now:%Y-%m-%d-%H%M%S}_nt=${run_notes}_${bc_algo.total_episode}epi_${bc_algo.n_epochs}epo
+defaults:
+#  - seq_reward_model: dtw
+  - _self_
+
+
+hydra:
+  run:
+    dir: ${log_folder}/${env.example_name}_visibility=${bc_algo.visibility}_level=${env.curriculum}_${now:%Y-%m-%d-%H%M%S}_nt=${run_notes}_${bc_algo.total_episode}epi_${bc_algo.n_epochs}epo

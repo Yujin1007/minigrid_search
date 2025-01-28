@@ -1,0 +1,59 @@
+seed: 9
+
+run_notes: Lava_RL
+
+model_base_path: null  # Folder to load the model from
+model_checkpoint: null  # Model checkpoint zip file name (without .zip) to load
+
+compute:
+  n_gpu_workers: 1
+  n_cpu_workers: 8  # One gym env per cpu
+
+logging:
+  log_freq: 300  # How many times to log during training
+  video_save_freq: 100000 # Frequency to save the video
+  model_save_freq: 100000  # Frequency to save the model
+
+  wandb_project: lava_RL
+  wandb_mode: online
+  wandb_tags: []
+
+  run_name: null
+  run_path: null
+
+env:
+#  example_name: map
+#  example_name: map_realizability3
+  example_name: lava_switch
+  episode_length: 100
+  include_history: false
+
+rl_algo:
+  name: reinforce
+  total_timesteps: 1000000
+  lr: 2.5e-4
+  batch_size: 100
+  gamma: 0.99
+  lambda1: 0.01
+  lambda2: 0.01
+  rollout_steps: 100
+  policy_update_steps: 50
+  alignment_step: 10
+  n: null
+  use_relative_rewards: false
+
+sweep:
+  enabled: false
+  n_trails: 5
+
+#cost_fn: nav_shortest_path
+
+log_folder: lava/sitt_train_logs
+
+defaults:
+#  - seq_reward_model: dtw
+  - _self_
+
+hydra:
+  run:
+    dir: ${log_folder}/${env.example_name}_:${rl_algo.name}_${now:%Y-%m-%d-%H%M%S}_nt=${run_notes}
